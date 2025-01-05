@@ -2,6 +2,15 @@
   "extends": ["next/core-web-vitals", "plugin:prettier/recommended", "shopify"],
   "plugins": ["unused-imports"],
   "rules": {
+    // Ensures that you handle returned promises
+    "@typescript-eslint/no-floating-promises": "error",
+    "promise/always-return": "error",
+    "promise/catch-or-return": [
+      "error",
+      {
+        "allowFinally": true
+      }
+    ],
     // Automatically remove unused imports
     "unused-imports/no-unused-imports": "error",
     // Warn about unused variables but allow underscore-prefixed ones

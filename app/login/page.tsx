@@ -1,10 +1,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { redirect } from 'next/navigation';
 import { SubmitButton } from '../components/SubmitButton';
-import { signIn } from '../utils/auth';
+import { auth, signIn } from '../utils/auth';
 
-export default function Login() {
+export default async function Login() {
+
+  const session = await auth()
+  if (session?.user) {
+    redirect('/dashboard')
+  }
   return (
     <>
       <div className="flex h-screen w-full items-center justify-center px-4">

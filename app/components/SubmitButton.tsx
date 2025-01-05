@@ -10,8 +10,8 @@ export function SubmitButton() {
   return (
     <div>
       {pending ? (
-        <Button className="w-full">
-          <Loader2 />
+        <Button disabled className="w-full">
+          <Loader2 className='size-4 mr-2 animate-spin' />
           Please wait..
         </Button>
       ) : (
