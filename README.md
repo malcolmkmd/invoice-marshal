@@ -54,7 +54,7 @@ Ensure you have the following installed:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-username/invoice-marshal.git
+   git clone https://github.com/malcolmkmd/invoice-marshal.git
    cd invoice-marshal
    ```
 
