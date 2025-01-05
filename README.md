@@ -19,25 +19,30 @@ Invoice Marshal is a web application designed to simplify the process of creatin
 ## Technology Stack
 
 ### Frontend
+
 - **Next.js**: Modern React framework for scalable web applications.
 - **Styling**:
   - **ShadCN UI**: Customizable, pre-styled UI components.
   - **TailwindCSS**: Utility-first CSS framework for quick and consistent design.
 
 ### Authentication
+
 - **AuthJS**: Streamlined authentication handling.
 - **Magic Links**: Hassle-free passwordless login experience.
 
 ### Email Services
+
 - **Mailtrap**:
   - Seamless email handling with Nodemailer.
   - Attach PDFs to emails for invoices and updates.
   - Automate email workflows, including overdue reminders.
 
 ### PDF Generation
+
 - **JSPDF**: Programmatically generate professional PDF invoices.
 
 ### Backend
+
 - **PostgreSQL**: Scalable and robust relational database.
 - **Prisma**: Advanced ORM offering type-safe database access.
 
@@ -46,25 +51,30 @@ Invoice Marshal is a web application designed to simplify the process of creatin
 ## Installation Guide
 
 ### Prerequisites
+
 Ensure you have the following installed:
+
 - Node.js (v16 or higher)
 - PostgreSQL
 
 ### Setup Steps
 
 1. **Clone the Repository**:
+
    ```bash
    git clone https://github.com/malcolmkmd/invoice-marshal.git
    cd invoice-marshal
    ```
 
 2. **Install Dependencies**:
+
    ```bash
    pnpm install
    ```
 
 3. **Set Environment Variables**:
    Create a `.env` file in the root directory and add:
+
    ```env
    DATABASE_URL=postgresql://username:password@localhost:5432/invoice_marshal
    NEXTAUTH_SECRET=your-next-auth-secret
@@ -74,6 +84,7 @@ Ensure you have the following installed:
    ```
 
 4. **Run Migrations**:
+
    ```bash
    pnpm prisma migrate dev
    ```
@@ -89,6 +100,7 @@ Ensure you have the following installed:
 ## How to Use
 
 1. **Login**:
+
    - Authenticate using Magic Links sent to your email.
 
 2. **Manage Invoices**:
@@ -116,9 +128,11 @@ Ensure you have the following installed:
 ## Deployment Instructions
 
 1. **Prepare for Production**:
+
    - Update `.env` variables with production values.
 
 2. **Build and Deploy**:
+
    ```bash
    pnpm build
    pnpm start
@@ -147,4 +161,3 @@ This project is licensed under the MIT License.
 ## Acknowledgments
 
 Thanks tJan Marshal (https://www.youtube.com/watch?v=AH3xlNuui_A)
-

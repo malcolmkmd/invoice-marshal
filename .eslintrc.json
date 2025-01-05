@@ -1,0 +1,18 @@
+{
+  "extends": ["next/core-web-vitals", "plugin:prettier/recommended", "shopify"],
+  "plugins": ["unused-imports"],
+  "rules": {
+    // Automatically remove unused imports
+    "unused-imports/no-unused-imports": "error",
+    // Warn about unused variables but allow underscore-prefixed ones
+    "unused-imports/no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "after-used",
+        "argsIgnorePattern": "^_"
+      }
+    ]
+  }
+}
