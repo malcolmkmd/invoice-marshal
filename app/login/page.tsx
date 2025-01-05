@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import React from 'react'
 import { signIn } from '../utils/auth'
+import { SubmitButton } from '../components/SubmitButton'
 
 export default function Login() {
   return (
@@ -15,15 +16,15 @@ export default function Login() {
             <CardDescription>Enter your email below to login to your account</CardDescription>
           </CardHeader>
           <CardContent>
-            <form action={async () => {
+            <form action={async (formData) => {
               "use server";
-              await signIn();
+              await signIn("nodemailer", formData);
             }} className='flex flex-col gap-y-4'>
               <div className='flex flex-col gap-y-2'>
                 <Label>Email</Label>
-                <Input placeholder='hello@email.com'/>
+                <Input name="email" type="email" required placeholder='hello@email.com' />
               </div>
-              <Button>Submit</Button>
+              <SubmitButton />
             </form>
           </CardContent>
         </Card>
