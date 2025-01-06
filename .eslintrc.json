@@ -1,6 +1,6 @@
 {
   "extends": ["next/core-web-vitals", "plugin:prettier/recommended", "shopify"],
-  "plugins": ["unused-imports"],
+  "plugins": ["unused-imports", "promise"],
   "rules": {
     // Ensures that you handle returned promises
     "@typescript-eslint/no-floating-promises": "error",
@@ -12,7 +12,7 @@
       }
     ],
     // Automatically remove unused imports
-    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-imports": "warn",
     // Warn about unused variables but allow underscore-prefixed ones
     "unused-imports/no-unused-vars": [
       "warn",
@@ -21,6 +21,39 @@
         "varsIgnorePattern": "^_",
         "args": "after-used",
         "argsIgnorePattern": "^_"
+      }
+    ],
+    // Prettier rules
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": true,
+        "trailingComma": "all",
+        "semi": true
+      }
+    ],
+    // Optional chaining safety
+    "@typescript-eslint/no-unsafe-optional-chaining": "error",
+    // Code complexity
+    "complexity": ["error", { "max": 10 }],
+    "max-depth": ["error", 4],
+    "max-lines": ["warn", { "max": 300, "skipBlankLines": true, "skipComments": true }],
+    // Import order
+    "import/order": [
+      "error",
+      {
+        "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+        "newlines-between": "always"
+      }
+    ],
+    // TypeScript-specific rules
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/explicit-module-boundary-types": "warn",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
       }
     ]
   }
