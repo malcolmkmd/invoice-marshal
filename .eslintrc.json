@@ -1,59 +1,84 @@
 {
-  "extends": ["next/core-web-vitals", "plugin:prettier/recommended", "shopify"],
-  "plugins": ["unused-imports", "promise"],
+  "extends": [
+    "next/core-web-vitals", // Enforces best practices for Next.js projects
+    "plugin:prettier/recommended", // Integrates Prettier formatting with ESLint
+    "shopify" // Shopify’s ESLint rules for consistent JavaScript/TypeScript
+  ],
+  "plugins": [
+    "unused-imports", // Automatically detects unused imports
+    "promise" // Enforces best practices for working with Promises
+  ],
   "rules": {
-    // Ensures that you handle returned promises
-    "@typescript-eslint/no-floating-promises": "error",
-    "promise/always-return": "error",
+    // -------------------------------------------
+    // Promise Best Practices
+    // -------------------------------------------
+    "@typescript-eslint/no-floating-promises": "error", // Ensures returned promises are handled
+    "promise/always-return": "error", // Ensures Promises always return a value
     "promise/catch-or-return": [
       "error",
       {
-        "allowFinally": true
+        "allowFinally": true // Allows `finally` without a `catch`
       }
     ],
-    // Automatically remove unused imports
-    "unused-imports/no-unused-imports": "warn",
-    // Warn about unused variables but allow underscore-prefixed ones
+
+    // -------------------------------------------
+    // Unused Imports/Variables
+    // -------------------------------------------
+    "unused-imports/no-unused-imports": "warn", // Warns for unused imports
     "unused-imports/no-unused-vars": [
       "warn",
       {
         "vars": "all",
-        "varsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_", // Allows underscore-prefixed variables
         "args": "after-used",
         "argsIgnorePattern": "^_"
       }
     ],
-    // Prettier rules
+
+    // -------------------------------------------
+    // Prettier Integration
+    // -------------------------------------------
     "prettier/prettier": [
       "error",
       {
-        "singleQuote": true,
-        "trailingComma": "all",
-        "semi": true
+        "singleQuote": true, // Use single quotes
+        "trailingComma": "all", // Add trailing commas where possible
+        "semi": true // Enforce semicolons
       }
     ],
-    // Optional chaining safety
-    "@typescript-eslint/no-unsafe-optional-chaining": "error",
-    // Code complexity
-    "complexity": ["error", { "max": 10 }],
-    "max-depth": ["error", 4],
-    "max-lines": ["warn", { "max": 300, "skipBlankLines": true, "skipComments": true }],
-    // Import order
-    "import/order": [
-      "error",
-      {
-        "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
-        "newlines-between": "always"
-      }
-    ],
-    // TypeScript-specific rules
-    "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/explicit-module-boundary-types": "warn",
+
+    // -------------------------------------------
+    // TypeScript Best Practices
+    // -------------------------------------------
+    "@typescript-eslint/no-unsafe-optional-chaining": "error", // Prevents unsafe optional chaining
+    "@typescript-eslint/no-explicit-any": "error", // Disallows usage of `any`
+    "@typescript-eslint/explicit-module-boundary-types": "warn", // Warns if module boundaries lack type definitions
     "@typescript-eslint/no-unused-vars": [
       "error",
       {
-        "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_"
+        "argsIgnorePattern": "^_", // Allows underscore-prefixed arguments
+        "varsIgnorePattern": "^_" // Allows underscore-prefixed variables
+      }
+    ],
+
+    // -------------------------------------------
+    // Code Complexity
+    // -------------------------------------------
+    "complexity": ["error", { "max": 10 }], // Limits cyclomatic complexity
+    "max-depth": ["error", 4], // Restricts nested code depth
+    "max-lines": [
+      "warn",
+      { "max": 300, "skipBlankLines": true, "skipComments": true } // Warn if file exceeds 300 lines
+    ],
+
+    // -------------------------------------------
+    // Import Order
+    // -------------------------------------------
+    "import/order": [
+      "error",
+      {
+        "groups": ["builtin", "external", "internal", "parent", "sibling", "index"], // Logical grouping of imports
+        "newlines-between": "always" // Enforce newlines between import groups
       }
     ]
   }

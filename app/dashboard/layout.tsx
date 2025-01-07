@@ -14,10 +14,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
-import DashboardLinks from '../components/DashboardLinks';
 import { signOut } from '../utils/auth';
 import prisma from '../utils/db';
 import { requireUser } from '../utils/hooks';
+import DashboardLinks from './DashboardLinks';
 
 async function getUser(userId: string) {
   const data = await prisma.user.findUnique({
@@ -38,7 +38,7 @@ async function getUser(userId: string) {
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const session = await requireUser();
-  const data = await getUser(session.user?.id as string);
+  await getUser(session.user?.id as string);
 
   const handleSignOut = async () => {
     'use server';
