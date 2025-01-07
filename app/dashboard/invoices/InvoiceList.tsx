@@ -11,14 +11,15 @@ import { getSession as getSession } from '../../utils/hooks';
 import { currencyFormatter, SupportedCurrency } from '../../utils/currencyFormatter';
 import { dateFormatter } from '../../utils/dateFormatter';
 import { Badge } from '../../../components/ui/badge';
+import prisma from '../../utils/db';
 
 interface iInvoice {
   id: string;
   clientName: string;
   total: number;
   status: string;
-  createdAt: string;
-  invoiceNumber: string;
+  createdAt: Date;
+  invoiceNumber: number;
   currency: string;
 }
 

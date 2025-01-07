@@ -32,7 +32,6 @@ export async function onboardUser(prevState: unknown, formData: FormData) {
 }
 
 export async function createInvoice(prevState: unknown, formData: FormData) {
-  console.log('here');
   const session = await getSession();
   const submission = parseWithZod(formData, {
     schema: invoiceSchema,
@@ -42,7 +41,7 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
     return submission.reply();
   }
 
-  await prisma.invoice.create({
+  const createdInvoice = await prisma.invoice.create({
     data: {
       ...submission.value,
       userId: session.user?.id,
@@ -69,7 +68,7 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
         invoiceNumber: submission.value.invoiceNumber,
         date: dateFormatter(submission.value.date),
         totalAmount: currencyFormatter({ amount: submission.value.invoiceNumber, currency: 'ZAR' }),
-        invoiceLink: 'Test_InvoiceLink',
+        invoiceLink: `http://localhost:3000/api/invoice/${createdInvoice.id}`,
       },
     })
     .then(console.log, console.error);
