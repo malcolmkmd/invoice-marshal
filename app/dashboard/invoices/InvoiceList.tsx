@@ -8,8 +8,8 @@ import {
 } from '@/components/ui/table';
 import InvoiceActions from './InvoiceActions';
 import { getSession as getSession } from '../../utils/hooks';
-import { formatCurrency, SupportedCurrency } from '../../utils/formatCurrency';
-import { formatDate } from '../../utils/formatDate';
+import { currencyFormatter, SupportedCurrency } from '../../utils/currencyFormatter';
+import { dateFormatter } from '../../utils/dateFormatter';
 import { Badge } from '../../../components/ui/badge';
 
 interface iInvoice {
@@ -66,7 +66,7 @@ export default async function InvoiceList() {
             <TableCell>{invoice.invoiceNumber}</TableCell>
             <TableCell>{invoice.clientName}</TableCell>
             <TableCell>
-              {formatCurrency({
+              {currencyFormatter({
                 amount: invoice.total,
                 currency: invoice.currency as SupportedCurrency,
               })}
@@ -82,7 +82,7 @@ export default async function InvoiceList() {
                 {invoice.status}
               </Badge>
             </TableCell>
-            <TableCell>{formatDate(new Date(invoice.createdAt))}</TableCell>
+            <TableCell>{dateFormatter(new Date(invoice.createdAt))}</TableCell>
             <TableCell className='text-right'>
               <InvoiceActions />
             </TableCell>

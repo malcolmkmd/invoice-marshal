@@ -7,7 +7,7 @@ interface iFormatCurrencyProps {
   currency: SupportedCurrency;
 }
 
-export function formatCurrency({ amount, currency }: iFormatCurrencyProps) {
+export function currencyFormatter({ amount, currency }: iFormatCurrencyProps) {
   // Resolve locale from system or fallback to 'en-US' for SSR
   const resolvedLocale = typeof navigator !== 'undefined' ? navigator.language : 'en-US';
 

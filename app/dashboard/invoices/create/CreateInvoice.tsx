@@ -22,7 +22,7 @@ import { createInvoice } from '../../../actions';
 import { useForm } from '@conform-to/react';
 import { parseWithZod } from '@conform-to/zod';
 import { invoiceSchema } from '../../../utils/zodSchemas';
-import { formatCurrency, SupportedCurrency } from '../../../utils/formatCurrency';
+import { currencyFormatter, SupportedCurrency } from '../../../utils/currencyFormatter';
 
 export default function CreateInvoice() {
   const [lastResult, action] = useActionState(createInvoice, undefined);
@@ -240,9 +240,9 @@ export default function CreateInvoice() {
               </div>
               <div className='col-span-2'>
                 <Input
-                  value={formatCurrency({ amount: calculatedTotal, currency })}
+                  value={currencyFormatter({ amount: calculatedTotal, currency })}
                   type='text'
-                  placeholder={formatCurrency({ amount: 0, currency })}
+                  placeholder={currencyFormatter({ amount: 0, currency })}
                   disabled
                 ></Input>
                 <input
@@ -258,7 +258,7 @@ export default function CreateInvoice() {
             <div className='w-1/3'>
               <div className='flex justify-between py-2 border-t'>
                 <span className='font-bold'>Total ({currency})</span>
-                <span>{formatCurrency({ amount: calculatedTotal, currency })}</span>
+                <span>{currencyFormatter({ amount: calculatedTotal, currency })}</span>
               </div>
             </div>
           </div>
