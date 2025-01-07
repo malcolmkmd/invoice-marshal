@@ -24,7 +24,19 @@ import { parseWithZod } from '@conform-to/zod';
 import { invoiceSchema } from '../../../utils/zodSchemas';
 import { currencyFormatter, SupportedCurrency } from '../../../utils/currencyFormatter';
 
-export default function CreateInvoice() {
+interface iCreateInvoiceProps {
+  firstName: string;
+  lastName: string;
+  address: string;
+  email: string;
+}
+
+export default function CreateInvoice({
+  firstName: userFirstName,
+  lastName: userLastName,
+  email: userEmail,
+  address: userAddress,
+}: iCreateInvoiceProps) {
   const [lastResult, action] = useActionState(createInvoice, undefined);
   const [form, fields] = useForm({
     lastResult,
@@ -104,21 +116,21 @@ export default function CreateInvoice() {
                 <Input
                   name={fields.fromName.name}
                   key={fields.fromName.initialValue}
-                  defaultValue={fields.fromName.initialValue}
+                  defaultValue={userFirstName + ' ' + userLastName}
                   placeholder='Company Name'
                 ></Input>
                 <p className='text-sm text-red-500'>{fields.fromName.errors}</p>
                 <Input
                   name={fields.fromEmail.name}
                   key={fields.fromEmail.initialValue}
-                  defaultValue={fields.fromEmail.initialValue}
+                  defaultValue={userEmail}
                   placeholder='Your Email'
                 ></Input>
                 <p className='text-sm text-red-500'>{fields.fromEmail.errors}</p>
                 <Input
                   name={fields.fromAddress.name}
                   key={fields.fromAddress.initialValue}
-                  defaultValue={fields.fromAddress.initialValue}
+                  defaultValue={userAddress}
                   placeholder='Your Address'
                 ></Input>
                 <p className='text-sm text-red-500'>{fields.fromAddress.errors}</p>
