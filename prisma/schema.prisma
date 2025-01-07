@@ -91,6 +91,7 @@ model Invoice {
   invoiceName String
   total       Int
   status      InvoiceStatus
+  currency    String
   date        DateTime
   dueDate     Int
 

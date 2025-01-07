@@ -29,7 +29,8 @@ export async function onboardUser(prevState: unknown, formData: FormData) {
 }
 
 export async function createInvoice(prevState: unknown, formData: FormData) {
-  await requireUser();
+  console.log('here');
+  const session = await requireUser();
   const submission = parseWithZod(formData, {
     schema: invoiceSchema,
   });
@@ -38,9 +39,12 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
     return submission.reply();
   }
 
-  const data = await prisma.invoice.create({
+  await prisma.invoice.create({
     data: {
       ...submission.value,
+      userId: session.user?.id,
     },
   });
+
+  return redirect('/dashboard/invoices');
 }
