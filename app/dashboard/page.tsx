@@ -1,8 +1,8 @@
 import { signOut } from '../utils/auth';
-import { requireUser } from '../utils/hooks';
+import { getSession } from '../utils/hooks';
 
 export default async function DashboardRoute() {
-  await requireUser();
+  await getSession();
 
   const handleSignOut = async () => {
     'use server';
@@ -11,7 +11,7 @@ export default async function DashboardRoute() {
   return (
     <div>
       <form action={handleSignOut}>
-        <button type="submit">Sign Out</button>
+        <button type='submit'>Sign Out</button>
       </form>
     </div>
   );

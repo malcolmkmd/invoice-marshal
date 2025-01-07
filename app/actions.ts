@@ -3,11 +3,11 @@
 import { parseWithZod } from '@conform-to/zod';
 import { redirect } from 'next/navigation';
 import prisma from './utils/db';
-import { requireUser } from './utils/hooks';
+import { getSession } from './utils/hooks';
 import { onboardingSchema, invoiceSchema } from './utils/zodSchemas';
 
 export async function onboardUser(prevState: unknown, formData: FormData) {
-  const session = await requireUser();
+  const session = await getSession();
   const submission = parseWithZod(formData, {
     schema: onboardingSchema,
   });
@@ -30,7 +30,7 @@ export async function onboardUser(prevState: unknown, formData: FormData) {
 
 export async function createInvoice(prevState: unknown, formData: FormData) {
   console.log('here');
-  const session = await requireUser();
+  const session = await getSession();
   const submission = parseWithZod(formData, {
     schema: invoiceSchema,
   });

@@ -16,7 +16,7 @@ import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
 import { signOut } from '../utils/auth';
 import prisma from '../utils/db';
-import { requireUser } from '../utils/hooks';
+import { getSession } from '../utils/hooks';
 import DashboardLinks from './DashboardLinks';
 
 async function getUser(userId: string) {
@@ -37,7 +37,7 @@ async function getUser(userId: string) {
 }
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  const session = await requireUser();
+  const session = await getSession();
   await getUser(session.user?.id as string);
 
   const handleSignOut = async () => {
