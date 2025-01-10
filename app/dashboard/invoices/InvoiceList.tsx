@@ -6,36 +6,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import InvoiceActions from './InvoiceActions';
-import { getSession as getSession } from '../../utils/hooks';
-import { currencyFormatter, SupportedCurrency } from '../../utils/currencyFormatter';
-import { dateFormatter } from '../../utils/dateFormatter';
+import { Invoice } from '@prisma/client';
 import { Badge } from '../../../components/ui/badge';
+import { currencyFormatter } from '../../utils/currencyFormatter';
+import { standardDateTime } from '../../utils/dateFormatter';
 import prisma from '../../utils/db';
+import { getSession } from '../../utils/hooks';
+import InvoiceActions from './InvoiceActions';
 
-interface iInvoice {
-  id: string;
-  clientName: string;
-  total: number;
-  status: string;
-  createdAt: Date;
-  invoiceNumber: number;
-  currency: string;
-}
-
-async function getData(userId: string): Promise<iInvoice[]> {
+async function getData(userId: string): Promise<Invoice[]> {
   const data = await prisma.invoice.findMany({
     where: {
       userId: userId,
-    },
-    select: {
-      id: true,
-      clientName: true,
-      total: true,
-      status: true,
-      createdAt: true,
-      invoiceNumber: true,
-      currency: true,
     },
     orderBy: {
       createdAt: 'desc',
@@ -49,6 +31,7 @@ async function getData(userId: string): Promise<iInvoice[]> {
 export default async function InvoiceList() {
   const session = await getSession();
   const data = await getData(session.user?.id as string);
+
   return (
     <Table>
       <TableHeader>
@@ -57,7 +40,8 @@ export default async function InvoiceList() {
           <TableHead>Customer</TableHead>
           <TableHead>Amount</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Date</TableHead>
+          <TableHead>Created on.</TableHead>
+          <TableHead>Updated on.</TableHead>
           <TableHead className='text-right'>Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -66,16 +50,11 @@ export default async function InvoiceList() {
           <TableRow key={invoice.id}>
             <TableCell>{invoice.invoiceNumber}</TableCell>
             <TableCell>{invoice.clientName}</TableCell>
-            <TableCell>
-              {currencyFormatter({
-                amount: invoice.total,
-                currency: invoice.currency as SupportedCurrency,
-              })}
-            </TableCell>
+            <TableCell>{currencyFormatter(invoice.total)}</TableCell>
             <TableCell>
               <Badge
                 className={
-                  invoice.status === 'paid'
+                  invoice.status === 'PAID'
                     ? 'bg-green-100 text-green-800'
                     : 'bg-gray-100 text-gray-800'
                 }
@@ -83,7 +62,8 @@ export default async function InvoiceList() {
                 {invoice.status}
               </Badge>
             </TableCell>
-            <TableCell>{dateFormatter(new Date(invoice.createdAt))}</TableCell>
+            <TableCell>{standardDateTime(new Date(invoice.createdAt))}</TableCell>
+            <TableCell>{standardDateTime(new Date(invoice.updatedAt))}</TableCell>
             <TableCell className='text-right'>
               <InvoiceActions invoiceId={invoice.id} />
             </TableCell>

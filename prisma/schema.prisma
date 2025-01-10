@@ -88,13 +88,11 @@ model Authenticator {
 }
 
 model Invoice {
-  id          String        @id @default(uuid())
-  invoiceName String
-  total       Int
-  status      InvoiceStatus
-  currency    String
-  date        DateTime
-  dueDate     Int
+  id      String        @id @default(uuid())
+  total   Int
+  status  InvoiceStatus
+  date    DateTime
+  dueDate Int
 
   fromName    String
   fromEmail   String
@@ -103,7 +101,7 @@ model Invoice {
   clientName    String
   clientEmail   String
   clientAddress String
-  invoiceNumber Int
+  invoiceNumber String  @unique
   note          String?
 
   invoiceItemDescription String

@@ -1,10 +1,9 @@
-import { NextResponse } from 'next/server';
-import prisma from '../../../utils/db';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { dateFormatter } from '../../../utils/dateFormatter';
 import { UserOptions } from 'jspdf-autotable';
-import { InvoiceSelection } from '../../../utils/prismaSelections';
+import { NextResponse } from 'next/server';
+import { standardDateTime } from '../../../utils/dateFormatter';
+import prisma from '../../../utils/db';
 
 // Example placeholder logo in Base64 (replace with your actual logo)
 // const LOGO_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAUA...';
@@ -23,7 +22,6 @@ export async function GET(
     where: {
       id: invoiceId,
     },
-    select: InvoiceSelection,
   });
 
   if (!data) {
@@ -47,7 +45,7 @@ export async function GET(
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'normal');
   pdf.text(`Invoice Number: ${data.invoiceNumber}`, 10, 30);
-  pdf.text(`Invoice Date: ${dateFormatter(data.date)}`, 10, 35);
+  pdf.text(`Invoice Date: ${standardDateTime(data.date)}`, 10, 35);
 
   // FROM Section
   pdf.setFontSize(12);

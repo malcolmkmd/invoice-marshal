@@ -26,7 +26,7 @@ export default function Onboarding() {
     <div className='min-h-screen w-screen flex items-center justify-center'>
       <Card className='max-w-sm mx-auto'>
         <CardHeader>
-          <CardTitle className='text-xl'>Let`&#39;`s complete your profile!</CardTitle>
+          <CardTitle className='text-xl'>Let&#39;s complete your profile!</CardTitle>
           <CardDescription>Enter your information to create an account</CardDescription>
         </CardHeader>
         <CardContent>
@@ -41,12 +41,12 @@ export default function Onboarding() {
               <div className='grid gap-2'>
                 <Label>Company Name</Label>
                 <Input
-                  name={fields.firstName.name}
-                  key={fields.firstName.key}
-                  defaultValue={fields.firstName.initialValue}
+                  name={fields.businessName.name}
+                  key={fields.businessName.key}
+                  defaultValue={fields.businessName.initialValue as string}
                   placeholder='John'
                 />
-                <p className='text-red-500 text-sm'>{fields.firstName.errors}</p>
+                <p className='text-red-500 text-sm'>{fields.businessName.errors}</p>
               </div>
             </div>
             <div className='grid gap-2'>
@@ -54,7 +54,7 @@ export default function Onboarding() {
               <Input
                 name={fields.address.name}
                 key={fields.address.key}
-                defaultValue={fields.address.initialValue}
+                defaultValue={fields.address.initialValue as string}
                 placeholder='John street 123'
               />
               <p className='text-red-500 text-sm'>{fields.address.errors}</p>

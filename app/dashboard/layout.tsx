@@ -25,13 +25,12 @@ async function getUser(userId: string) {
       id: userId,
     },
     select: {
-      firstName: true,
-      lastName: true,
+      businessName: true,
       address: true,
     },
   });
 
-  if (!data?.firstName || !data.lastName || !data.firstName) {
+  if (!data?.businessName || !data.businessName) {
     redirect('/onboarding');
   }
 }

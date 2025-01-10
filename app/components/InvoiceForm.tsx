@@ -22,7 +22,8 @@ import {
 import { Textarea } from '../../components/ui/textarea';
 import { Toaster } from '../../components/ui/toaster';
 import { useToast } from '../../hooks/use-toast';
-import { currencyFormatter, SupportedCurrency } from '../utils/currencyFormatter';
+import { currencyFormatter } from '../utils/currencyFormatter';
+import { standardDateTime } from '../utils/dateFormatter';
 import { invoiceSchema } from '../utils/zodSchemas';
 import { InvoiceCard } from './InvoiceCard';
 import { SubmitButton } from './SubmitButton';
@@ -44,8 +45,9 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
     lastResult,
     onValidate({ formData }) {
       // Parse the form data using Zod schema
+      console.log('formData', formData);
       const result = parseWithZod(formData, { schema: invoiceSchema });
-
+      console.log('result', result);
       // Check for validation errors
       if (result.status === 'error' && result.error instanceof z.ZodError) {
         // Display errors in a toast
@@ -67,10 +69,9 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
     shouldRevalidate: 'onInput',
   });
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(props.invoice?.date || new Date());
   const [rate, setRate] = useState(props.invoice?.invoiceItemRate || '');
   const [quantity, setQuantity] = useState(props.invoice?.invoiceItemQuantity || '');
-  const [currency, setCurrency] = useState<SupportedCurrency>('ZAR');
 
   const calculatedTotal = (Number(quantity) || 0) * (Number(rate) || 0);
 
@@ -80,52 +81,60 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
       <form id={form.id} onSubmit={form.onSubmit} action={action} noValidate>
         <div className='flex flex-col gap-2 w-fit mb-6'>
           <div className='flex items-center gap-4'>
-            <Badge variant='secondary'>Draft</Badge>
-            <Input
-              name={fields.invoiceName.name}
-              key={fields.invoiceName.key}
-              defaultValue={fields.invoiceName.initialValue}
-              placeholder='Test 123'
-            ></Input>
+            <Badge variant={props.invoice?.id ? 'default' : 'secondary'}>
+              {props.invoice?.status}
+            </Badge>
+            {props.invoice?.id && (
+              <Input
+                type='hidden'
+                name={fields.id.name}
+                key={fields.id.key}
+                value={props.invoice?.id || ''}
+              />
+            )}
           </div>
-          <p className='text-red-500 text-sm'>{fields.invoiceName.errors}</p>
         </div>
         <div className='grid md:grid-cols-3 gap-6 mb-6'>
-          <div>
-            <Label>Invoice No.</Label>
-            <div className='flex'>
-              <span className='flex items-center px-3 border border-r-0 rounded-l-md bg-muted'>
-                #
-              </span>
-              <Input
-                name={fields.invoiceNumber.name}
-                key={fields.invoiceNumber.initialValue}
-                defaultValue={props.invoice?.invoiceNumber ?? fields.invoiceNumber.initialValue}
-                className='rounded-l-none'
-                placeholder='123'
-              ></Input>
-            </div>
-            <p className='text-red-500 text-sm'>{fields.invoiceNumber.errors}</p>
-          </div>
-
-          <div>
-            <Label>Currency</Label>
-            <Select
-              name={fields.currency.name}
-              key={fields.currency.key}
-              defaultValue={props.invoice?.currency ?? 'ZAR'}
-              onValueChange={(value) => setCurrency(value as SupportedCurrency)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder='Select Currency'></SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='ZAR'>ZAR</SelectItem>
-                <SelectItem value='USD'>USD</SelectItem>
-                <SelectItem value='EUR'>Euros</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {props.invoice?.invoiceNumber && (
+            <>
+              <div>
+                <Label>Invoice No.</Label>
+                <div className='flex'>
+                  <span className='flex items-center px-3 border border-r-0 rounded-l-md bg-muted'>
+                    #
+                  </span>
+                  <Input
+                    disabled
+                    defaultValue={props.invoice?.invoiceNumber ?? ''}
+                    className='rounded-l-none'
+                  />
+                </div>
+              </div>
+              <div>
+                <Label>Sent on.</Label>
+                <div className='flex'>
+                  <Input
+                    disabled
+                    defaultValue={standardDateTime(props.invoice?.createdAt)}
+                    className='rounded'
+                  />
+                </div>
+              </div>
+              {props.invoice?.createdAt.toISOString() !==
+                props.invoice?.updatedAt.toISOString() && (
+                <div>
+                  <Label>Updated on.</Label>
+                  <div className='flex'>
+                    <Input
+                      disabled
+                      defaultValue={standardDateTime(props.invoice?.updatedAt ?? new Date())}
+                      className='rounded'
+                    />
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
         <div className='grid md:grid-cols-2 gap-6 mb-6'>
           <div>
@@ -253,9 +262,6 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
               <Input
                 name={fields.invoiceItemQuantity.name}
                 key={fields.invoiceItemQuantity.key}
-                defaultValue={
-                  props.invoice?.invoiceItemQuantity ?? fields.invoiceItemQuantity.initialValue
-                }
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 type='number'
@@ -266,7 +272,6 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
               <Input
                 name={fields.invoiceItemRate.name}
                 key={fields.invoiceItemRate.key}
-                defaultValue={props.invoice?.invoiceItemRate ?? fields.invoiceItemRate.initialValue}
                 value={rate}
                 onChange={(e) => setRate(e.target.value)}
                 type='number'
@@ -275,9 +280,9 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
             </div>
             <div className='col-span-2'>
               <Input
-                value={currencyFormatter({ amount: calculatedTotal, currency })}
+                value={currencyFormatter(calculatedTotal)}
                 type='text'
-                placeholder={currencyFormatter({ amount: 0, currency })}
+                placeholder={currencyFormatter(0)}
                 disabled
               ></Input>
               <input
@@ -292,8 +297,8 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
         <div className='flex justify-end'>
           <div className='w-1/3'>
             <div className='flex justify-between py-2 border-t'>
-              <span className='font-bold'>Total ({currency})</span>
-              <span>{currencyFormatter({ amount: calculatedTotal, currency })}</span>
+              <span className='font-bold'>Total </span>
+              <span>{currencyFormatter(calculatedTotal)}</span>
             </div>
           </div>
         </div>

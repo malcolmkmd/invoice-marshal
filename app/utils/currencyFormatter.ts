@@ -1,19 +1,10 @@
-export const currencyOptions = ['ZAR', 'USD', 'EUR'] as const;
-
-export type SupportedCurrency = (typeof currencyOptions)[number];
-
-interface iFormatCurrencyProps {
-  amount: number;
-  currency: SupportedCurrency;
-}
-
-export function currencyFormatter({ amount, currency }: iFormatCurrencyProps) {
+export function currencyFormatter(amount: number) {
   // Resolve locale from system or fallback to 'en-US' for SSR
   const resolvedLocale = typeof navigator !== 'undefined' ? navigator.language : 'en-US';
 
   return new Intl.NumberFormat(resolvedLocale, {
     style: 'currency',
-    currency: currency,
+    currency: 'ZAR',
     currencyDisplay: 'symbol',
   }).format(amount);
 }
