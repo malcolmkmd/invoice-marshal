@@ -4,9 +4,10 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { dateFormatter } from '../../../utils/dateFormatter';
 import { UserOptions } from 'jspdf-autotable';
+import { InvoiceSelection } from '../../../utils/prismaSelections';
 
 // Example placeholder logo in Base64 (replace with your actual logo)
-const LOGO_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAUA...';
+// const LOGO_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAUA...';
 
 interface jsPDFCustom extends jsPDF {
   autoTable: (options: UserOptions) => void;
@@ -22,23 +23,7 @@ export async function GET(
     where: {
       id: invoiceId,
     },
-    select: {
-      invoiceName: true,
-      invoiceNumber: true,
-      currency: true,
-      fromName: true,
-      fromEmail: true,
-      fromAddress: true,
-      clientName: true,
-      clientEmail: true,
-      clientAddress: true,
-      date: true,
-      dueDate: true,
-      invoiceItemDescription: true,
-      invoiceItemQuantity: true,
-      invoiceItemRate: true,
-      total: true,
-    },
+    select: InvoiceSelection,
   });
 
   if (!data) {

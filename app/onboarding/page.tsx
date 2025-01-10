@@ -39,7 +39,7 @@ export default function Onboarding() {
           >
             <div className='grid grid-cols-2 gap-4'>
               <div className='grid gap-2'>
-                <Label>First Name</Label>
+                <Label>Company Name</Label>
                 <Input
                   name={fields.firstName.name}
                   key={fields.firstName.key}
@@ -47,16 +47,6 @@ export default function Onboarding() {
                   placeholder='John'
                 />
                 <p className='text-red-500 text-sm'>{fields.firstName.errors}</p>
-              </div>
-              <div className='grid gap-2'>
-                <Label>Last Name</Label>
-                <Input
-                  name={fields.lastName.name}
-                  key={fields.lastName.key}
-                  defaultValue={fields.lastName.initialValue}
-                  placeholder='Doe'
-                />
-                <p className='text-red-500 text-sm'>{fields.lastName.errors}</p>
               </div>
             </div>
             <div className='grid gap-2'>

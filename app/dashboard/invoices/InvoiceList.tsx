@@ -85,7 +85,7 @@ export default async function InvoiceList() {
             </TableCell>
             <TableCell>{dateFormatter(new Date(invoice.createdAt))}</TableCell>
             <TableCell className='text-right'>
-              <InvoiceActions />
+              <InvoiceActions invoiceId={invoice.id} />
             </TableCell>
           </TableRow>
         ))}

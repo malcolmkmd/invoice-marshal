@@ -75,3 +75,37 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
 
   return redirect('/dashboard/invoices');
 }
+
+export async function editInvoice(prevState: unknown, formData: FormData) {
+  const session = await getSession();
+  const submission = parseWithZod(formData, {
+    schema: invoiceSchema,
+  });
+
+  if (submission.status !== 'success') {
+    return submission.reply();
+  }
+
+  // await prisma.invoice.update({
+  //   where: {
+  //     id: submission.value.id,
+  //     userId: session.user?.id,
+  //   },
+  //   data: {
+  //     ...submission.value,
+  //   },
+  // });
+  return redirect('/dashboard/invoices');
+}
+
+export async function deleteInvoice(invoiceId: string) {
+  const session = await getSession();
+
+  await prisma.invoice.delete({
+    where: {
+      id: invoiceId,
+      userId: session.user?.id,
+    },
+  });
+  return redirect('/dashboard/invoices');
+}
