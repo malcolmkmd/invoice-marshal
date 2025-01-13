@@ -20,7 +20,6 @@ import {
   SelectValue,
 } from '../../components/ui/select';
 import { Textarea } from '../../components/ui/textarea';
-import { Toaster } from '../../components/ui/toaster';
 import { useToast } from '../../hooks/use-toast';
 import { currencyFormatter } from '../utils/currencyFormatter';
 import { standardDateTime } from '../utils/dateFormatter';
@@ -77,7 +76,6 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
 
   return (
     <InvoiceCard>
-      <Toaster />
       <form id={form.id} onSubmit={form.onSubmit} action={action} noValidate>
         <div className='flex flex-col gap-2 w-fit mb-6'>
           <div className='flex items-center gap-4'>

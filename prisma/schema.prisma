@@ -87,6 +87,12 @@ model Authenticator {
   @@id([userId, credentialID])
 }
 
+model Counter {
+  id         Int    @id @default(autoincrement())
+  entity     String @unique
+  lastNumber Int
+}
+
 model Invoice {
   id      String        @id @default(uuid())
   total   Int

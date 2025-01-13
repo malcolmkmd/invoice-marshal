@@ -14,6 +14,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
+import { Toaster } from '../../components/ui/sonner';
 import { signOut } from '../utils/auth';
 import prisma from '../utils/db';
 import { getSession } from '../utils/hooks';
@@ -107,6 +108,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <main className='flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6'>{children}</main>
         </div>
       </div>
+      <Toaster richColors closeButton theme='dark' />
     </>
   );
 }

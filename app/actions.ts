@@ -9,6 +9,19 @@ import { getSession } from './utils/hooks';
 import { emailClient } from './utils/mailtrap';
 import { invoiceSchema, onboardingSchema } from './utils/zodSchemas';
 
+export async function Authorize(invoiceId: string, userId: string) {
+  const data = await prisma.invoice.findUnique({
+    where: {
+      id: invoiceId,
+      userId: userId,
+    },
+  });
+
+  if (!data) {
+    return redirect('/dashboard/invoices');
+  }
+}
+
 export async function onboardUser(prevState: unknown, formData: FormData) {
   const session = await getSession();
   const submission = parseWithZod(formData, {
@@ -35,25 +48,15 @@ export async function onboardUser(prevState: unknown, formData: FormData) {
 async function generateInvoiceNumber(): Promise<string> {
   const prefix = 'INV-';
 
-  // Find the highest current invoice number
-  const lastInvoice = await prisma.invoice.findFirst({
-    orderBy: {
-      createdAt: 'desc', // Ensure the latest invoice is retrieved
-    },
-    select: {
-      invoiceNumber: true,
-    },
+  // Atomically update the counter
+  const counter = await prisma.counter.upsert({
+    where: { entity: 'invoice' },
+    update: { lastNumber: { increment: 1 } },
+    create: { entity: 'invoice', lastNumber: 1 },
   });
 
-  // Extract the numeric part and increment it
-  const lastNumber = lastInvoice?.invoiceNumber
-    ? parseInt(lastInvoice.invoiceNumber.replace(prefix, ''), 10)
-    : 0;
-
-  const nextNumber = lastNumber + 1;
-
-  // Generate the new invoice number
-  return `${prefix}${nextNumber.toString().padStart(6, '0')}`;
+  // Use the incremented number to generate the invoice number
+  return `${prefix}${counter.lastNumber.toString().padStart(6, '0')}`;
 }
 
 export async function createInvoice(prevState: unknown, formData: FormData) {
@@ -158,6 +161,31 @@ export async function deleteInvoice(invoiceId: string) {
     where: {
       id: invoiceId,
       userId: session.user?.id,
+    },
+  });
+  return redirect('/dashboard/invoices');
+}
+
+export async function DeleteInvoice(invoiceId: string) {
+  const session = await getSession();
+  await prisma.invoice.delete({
+    where: {
+      userId: session.user?.id,
+      id: invoiceId,
+    },
+  });
+  return redirect('/dashboard/invoices');
+}
+
+export async function MarkAsPaid(invoiceId: string) {
+  const session = await getSession();
+  await prisma.invoice.update({
+    where: {
+      userId: session.user?.id,
+      id: invoiceId,
+    },
+    data: {
+      status: 'PAID',
     },
   });
   return redirect('/dashboard/invoices');

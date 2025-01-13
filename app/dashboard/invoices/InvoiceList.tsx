@@ -65,7 +65,7 @@ export default async function InvoiceList() {
             <TableCell>{standardDateTime(new Date(invoice.createdAt))}</TableCell>
             <TableCell>{standardDateTime(new Date(invoice.updatedAt))}</TableCell>
             <TableCell className='text-right'>
-              <InvoiceActions invoiceId={invoice.id} />
+              <InvoiceActions invoiceId={invoice.id} status={invoice.status} />
             </TableCell>
           </TableRow>
         ))}
