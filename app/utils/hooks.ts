@@ -5,7 +5,7 @@ export async function getSession() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect('/login');
+    redirect('/');
   }
 
   return session;

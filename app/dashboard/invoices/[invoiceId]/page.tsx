@@ -38,7 +38,7 @@ export default async function EditInvoiceRoute({ params }: { params: { invoiceId
 
   const session = await getSession();
   if (!session?.user?.id) {
-    return NextResponse.redirect('/login');
+    return NextResponse.redirect('/');
   }
   const data = await getData(invoiceId, session.user?.id as string);
   if ('error' in data) {
