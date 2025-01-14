@@ -5,27 +5,16 @@ import { redirect } from 'next/navigation';
 import { SubmitButton } from './components/SubmitButton';
 import { auth, signIn } from './utils/auth';
 
-type LoginProps = {
-  searchParams?: { [key: string]: string | string[] | undefined };
-};
-
-export default async function Login({ searchParams }: LoginProps) {
+export default async function Login() {
   const handleSignIn = async (formData: FormData) => {
     'use server';
-    try {
-      await signIn('nodemailer', formData);
-    } catch (error) {
-      console.error('Error signing in:', error);
-      redirect('/?error=' + encodeURIComponent('Something went wrong...'));
-    }
+    await signIn('nodemailer', formData);
   };
 
   const session = await auth();
   if (session?.user) {
     redirect('/dashboard');
   }
-
-  const errorParam = searchParams?.error;
 
   return (
     <>
@@ -40,11 +29,6 @@ export default async function Login({ searchParams }: LoginProps) {
               <div className='flex flex-col gap-y-2'>
                 <Label>Email</Label>
                 <Input name='email' type='email' required placeholder='hello@email.com' />
-                {errorParam && (
-                  <p className='text-sm text-red-500'>
-                    {decodeURIComponent(errorParam.toString())}
-                  </p>
-                )}
               </div>
               <SubmitButton text='Login' />
             </form>
