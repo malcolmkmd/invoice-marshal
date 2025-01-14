@@ -20,5 +20,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   pages: {
     verifyRequest: '/verify',
-  }
+  },
+  callbacks: {
+    async signIn({ user }) {
+      const allowedEmails = process.env.ALLOWED_EMAILS?.split(',') || [];
+      if (allowedEmails.includes(user?.email || '')) {
+        return true; // Allow sign-in if the email is in the allowList
+      } else {
+        return false; // Reject sign-in if the email is not in the allowList
+      }
+    },
+  },
 });
