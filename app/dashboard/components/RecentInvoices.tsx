@@ -1,38 +1,24 @@
 import { Avatar, AvatarFallback } from '../../../components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { currencyFormatter } from '../../utils/currencyFormatter';
-import prisma from '../../utils/db';
-import { getSession } from '../../utils/hooks';
 
-async function getInvoices(userId: string) {
-  const data = await prisma.invoice.findMany({
-    where: {
-      userId: userId,
-    },
-    select: {
-      id: true,
-      clientName: true,
-      clientEmail: true,
-      total: true,
-    },
-    orderBy: {
-      createdAt: 'asc',
-    },
-    take: 10,
-  });
-  return data;
+interface iRecentInvoicesProps {
+  recentInvoiceData: {
+    id: string;
+    total: number;
+    clientName: string;
+    clientEmail: string;
+  }[];
 }
 
-export default async function RecentInvoices() {
-  const session = await getSession();
-  const data = await getInvoices(session.user?.id as string);
+export default function RecentInvoices({ recentInvoiceData }: iRecentInvoicesProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Recent Invoices</CardTitle>
       </CardHeader>
       <CardContent>
-        {data.map((invoice) => (
+        {recentInvoiceData.map((invoice) => (
           <div key={invoice.id} className='flex items-center gap-4 pb-4'>
             <Avatar className='hidden sm:flex size-9'>
               <AvatarFallback>{invoice.clientName.slice(0, 2).toUpperCase()}</AvatarFallback>

@@ -1,7 +1,8 @@
 {
   "extends": [
     "next/core-web-vitals", // Enforces best practices for Next.js projects
-    "plugin:prettier/recommended" // Integrates Prettier formatting with ESLint
+    "plugin:prettier/recommended", // Integrates Prettier formatting with ESLint
+    "shopify" // Shopify’s ESLint rules for consistent JavaScript/TypeScript
   ],
   "plugins": [
     "unused-imports", // Automatically detects unused imports

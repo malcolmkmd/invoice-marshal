@@ -84,8 +84,8 @@ export async function GET(
     tableData.push([
       descriptions[i],
       quantities[i].toString(),
-      `${data.currency} ${rates[i].toFixed(2)}`,
-      `${data.currency} ${amount}`,
+      `R ${rates[i].toFixed(2)}`,
+      `R ${amount}`,
     ]);
   }
 
@@ -128,7 +128,7 @@ export async function GET(
 
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(12);
-  pdf.text(`Total: ${data.currency} ${data.total.toFixed(2)}`, rightMargin - 10, tableHeight + 30, {
+  pdf.text(`Total: R ${data.total.toFixed(2)}`, rightMargin - 10, tableHeight + 30, {
     align: 'right',
   });
 

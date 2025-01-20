@@ -29,7 +29,11 @@ async function getData(invoiceId: string, userId: string): Promise<Invoice | Inv
   }
 }
 
-export default async function EditInvoiceRoute({ params }: { params: { invoiceId: string } }) {
+export default async function EditInvoiceRoute({
+  params,
+}: {
+  params: Promise<{ invoiceId: string }>;
+}) {
   const { invoiceId } = await params;
   if (!invoiceId) {
     console.error('No invoice ID provided');

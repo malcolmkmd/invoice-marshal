@@ -1,12 +1,29 @@
-import InvoiceList from '@/app/dashboard/invoices/InvoiceList';
 import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Invoice } from '@prisma/client';
 import { PlusIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { Skeleton } from '../../../components/ui/skeleton';
+import prisma from '../../utils/db';
+import { getSession } from '../../utils/hooks';
+import { InvoiceList } from './InvoiceList';
 
-export default function InvoicesRoute() {
+async function getData(userId: string): Promise<Invoice[]> {
+  const data = await prisma.invoice.findMany({
+    where: {
+      userId: userId,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+  return data;
+}
+
+export default async function InvoicesRoute() {
+  const session = await getSession();
+  const data = await getData(session.user?.id as string);
   return (
     <Card>
       <CardHeader>
@@ -22,7 +39,7 @@ export default function InvoicesRoute() {
       </CardHeader>
       <CardContent>
         <Suspense fallback={<Skeleton className='w-full h-[500px]' />}>
-          <InvoiceList />
+          <InvoiceList data={data} />
         </Suspense>
       </CardContent>
     </Card>

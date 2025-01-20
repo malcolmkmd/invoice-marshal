@@ -1,41 +1,20 @@
 import { ActivityIcon, CreditCardIcon, Users, Wallet } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { currencyFormatter } from '../../utils/currencyFormatter';
-import prisma from '../../utils/db';
-import { getSession } from '../../utils/hooks';
 
-async function getData(userId: string) {
-  const [openInvoices, paidInvoices] = await Promise.all([
-    prisma.invoice.findMany({
-      where: {
-        userId: userId,
-        status: 'PENDING',
-      },
-      select: {
-        id: true,
-        total: true,
-      },
-    }),
-    prisma.invoice.findMany({
-      where: {
-        userId: userId,
-        status: 'PAID',
-      },
-      select: {
-        id: true,
-        total: true,
-      },
-    }),
-  ]);
-  return {
-    openInvoices,
-    paidInvoices,
-  };
-}
-
-export default async function Blocks() {
-  const session = await getSession();
-  const { openInvoices, paidInvoices } = await getData(session.user?.id as string);
+export default function Blocks({
+  openInvoices,
+  paidInvoices,
+}: {
+  openInvoices: {
+    id: string;
+    total: number;
+  }[];
+  paidInvoices: {
+    id: string;
+    total: number;
+  }[];
+}) {
   const totalRevenue = paidInvoices.reduce((acc, invoice) => acc + invoice.total, 0);
   const outstandingRevenue = openInvoices.reduce((acc, invoice) => acc + invoice.total, 0);
   return (

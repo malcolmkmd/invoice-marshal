@@ -10,29 +10,10 @@ import { Invoice } from '@prisma/client';
 import { Badge } from '../../../components/ui/badge';
 import { currencyFormatter } from '../../utils/currencyFormatter';
 import { standardDateTime } from '../../utils/dateFormatter';
-import prisma from '../../utils/db';
-import { getSession } from '../../utils/hooks';
 import EmptyState from '../components/EmptyState';
 import InvoiceActions from './InvoiceActions';
 
-async function getData(userId: string): Promise<Invoice[]> {
-  const data = await prisma.invoice.findMany({
-    where: {
-      userId: userId,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-
-  // By returning Invoice[], each invoice in `data.map(...)` has correct types
-  return data;
-}
-
-export default async function InvoiceList() {
-  const session = await getSession();
-  const data = await getData(session.user?.id as string);
-
+export function InvoiceList({ data }: { data: Invoice[] }) {
   return (
     <>
       {data.length === 0 ? (
