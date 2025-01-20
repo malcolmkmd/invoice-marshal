@@ -98,7 +98,10 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
         invoiceNumber: createdInvoice.invoiceNumber,
         date: standardDateTime(submission.value.date),
         totalAmount: currencyFormatter(submission.value.total),
-        invoiceLink: `http://localhost:3000/api/invoice/${createdInvoice.id}`,
+        invoiceLink:
+          process.env.NODE_ENV !== 'production'
+            ? `http://localhost:3000/api/invoice/${createdInvoice.id}`
+            : `https://invoice-marshal-green.vercel.app/api/invoice/${createdInvoice.id}`,
       },
     })
     .then(console.log, console.error);
@@ -146,7 +149,10 @@ export async function editInvoice(prevState: unknown, formData: FormData) {
         invoiceNumber: editedInvoice.invoiceNumber,
         date: standardDateTime(submission.value.date),
         totalAmount: currencyFormatter(submission.value.total),
-        invoiceLink: `http://localhost:3000/api/invoice/${editedInvoice.id}`,
+        invoiceLink:
+          process.env.NODE_ENV !== 'production'
+            ? `http://localhost:3000/api/invoice/${editedInvoice.id}`
+            : `https://invoice-marshal-green.vercel.app/api/invoice/${editedInvoice.id}`,
       },
     })
     .then(console.log, console.error);
