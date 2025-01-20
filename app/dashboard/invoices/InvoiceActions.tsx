@@ -24,6 +24,7 @@ import {
   DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -104,21 +105,23 @@ export default function InvoiceActions({ invoiceId, status }: iInvoiceActionProp
                 <div className='my-4'>
                   <Image src={WarningGif} alt='Warning Gif' className='rounded-lg' />
                 </div>
-                <div className='flex items-center justify-between'>
-                  <DialogClose asChild>
-                    <Button type='button' variant='secondary'>
-                      Close
-                    </Button>
-                  </DialogClose>
-                  <form
-                    onSubmit={async (e) => {
-                      e.preventDefault();
-                      await DeleteInvoice(invoiceId);
-                    }}
-                  >
-                    <SubmitButton text='Delete Invoice' variant='destructive' />
-                  </form>
-                </div>
+                <DialogFooter>
+                  <div className='flex items-center justify-between'>
+                    <DialogClose asChild>
+                      <Button type='button' variant='secondary'>
+                        Close
+                      </Button>
+                    </DialogClose>
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        await DeleteInvoice(invoiceId);
+                      }}
+                    >
+                      <SubmitButton text='Delete Invoice' variant='destructive' />
+                    </form>
+                  </div>
+                </DialogFooter>
               </DialogContent>
             </Dialog>
           </Link>

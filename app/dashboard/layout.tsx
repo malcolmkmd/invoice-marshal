@@ -7,8 +7,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import Logo from '@/public/logo.png';
+import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { Menu, Users2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -73,6 +80,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
                   <Menu className='size-5' />
                 </Button>
               </SheetTrigger>
+              <VisuallyHidden.Root>
+                <SheetTitle>Menu</SheetTitle>
+                <SheetDescription>Menu</SheetDescription>
+              </VisuallyHidden.Root>
               <SheetContent side='left'>
                 <nav className='grid gap-2 mt-10'>
                   <DashboardLinks />
