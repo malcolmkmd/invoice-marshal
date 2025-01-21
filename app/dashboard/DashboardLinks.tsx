@@ -7,16 +7,16 @@ import { usePathname } from 'next/navigation';
 
 export const dashboardLinks = [
   {
-    id: 0,
-    name: 'Dashboard',
-    href: '/dashboard',
-    icon: HomeIcon,
-  },
-  {
     id: 1,
     name: 'Invoices',
     href: '/dashboard/invoices',
     icon: Users2,
+  },
+  {
+    id: 0,
+    name: 'Dashboard',
+    href: '/dashboard',
+    icon: HomeIcon,
   },
 ];
 

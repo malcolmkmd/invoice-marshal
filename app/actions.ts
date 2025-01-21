@@ -42,7 +42,7 @@ export async function onboardUser(prevState: unknown, formData: FormData) {
   });
 
   console.log('User onboarded successfully');
-  return redirect('/dashboard');
+  return redirect('/dashboard/invoices');
 }
 
 async function generateInvoiceNumber(): Promise<string> {
