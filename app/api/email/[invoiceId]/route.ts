@@ -19,8 +19,8 @@ export async function POST(
     });
 
     const sender = {
-      email: 'hello@demomailtrap.com',
-      name: 'Mailtrap Test',
+      email: 'accounts@kumwenda-inc.co.za',
+      name: 'Accounts @Kumwenda-Inc',
     };
     const recipients = [
       {
