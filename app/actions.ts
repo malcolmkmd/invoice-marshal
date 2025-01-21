@@ -79,8 +79,8 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
   });
 
   const sender = {
-    email: 'hello@demomailtrap.com',
-    name: 'Mailtrap Test',
+    email: 'accounts@kumwenda-inc.co.za',
+    name: 'Accounts @Kumwenda-Inc',
   };
   const recipients = [
     {
@@ -130,8 +130,8 @@ export async function editInvoice(prevState: unknown, formData: FormData) {
   });
 
   const sender = {
-    email: 'hello@demomailtrap.com',
-    name: 'Mailtrap Test',
+    email: 'accounts@kumwenda-inc.co.za',
+    name: 'Accounts @Kumwenda-Inc',
   };
   const recipients = [
     {

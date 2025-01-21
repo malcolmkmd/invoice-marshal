@@ -24,14 +24,14 @@ export async function POST(
     };
     const recipients = [
       {
-        email: 'malcolmcollin@gmail.com',
+        email: invoice?.clientEmail ?? '',
       },
     ];
 
     emailClient
       .send({
         from: sender,
-        to: recipients, // [{email: submission.value.client.email}]
+        to: recipients,
         template_uuid: 'b977b054-8302-4464-9465-c7363b3c7af1',
         template_variables: {
           company_info_name: 'Kumwenda Attorneys Inc.',
