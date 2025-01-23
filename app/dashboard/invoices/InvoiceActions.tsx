@@ -30,7 +30,6 @@ import {
   DialogTrigger,
 } from '../../../components/ui/dialog';
 import { DeleteInvoice } from '../../actions';
-import { SubmitButton } from '../../components/SubmitButton';
 
 interface iInvoiceActionProps {
   invoiceId: string;
@@ -95,7 +94,7 @@ export default function InvoiceActions({ invoiceId, status }: iInvoiceActionProp
                   Delete Invoice
                 </div>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className='sm:max-w-md'>
                 <DialogHeader>
                   <DialogTitle>Delete Invoice</DialogTitle>
                   <DialogDescription>
@@ -105,21 +104,18 @@ export default function InvoiceActions({ invoiceId, status }: iInvoiceActionProp
                 <div className='my-4'>
                   <Image src={WarningGif} alt='Warning Gif' className='rounded-lg' />
                 </div>
-                <DialogFooter>
-                  <div className='flex items-center justify-between'>
+                <DialogFooter className='sm:justify-start'>
+                  <div className='flex items-center gap-2'>
                     <DialogClose asChild>
-                      <Button type='button' variant='secondary'>
-                        Close
+                      <Button
+                        variant='destructive'
+                        onClick={async () => {
+                          await DeleteInvoice(invoiceId);
+                        }}
+                      >
+                        Delete Invoice
                       </Button>
                     </DialogClose>
-                    <form
-                      onSubmit={async (e) => {
-                        e.preventDefault();
-                        await DeleteInvoice(invoiceId);
-                      }}
-                    >
-                      <SubmitButton text='Delete Invoice' variant='destructive' />
-                    </form>
                   </div>
                 </DialogFooter>
               </DialogContent>

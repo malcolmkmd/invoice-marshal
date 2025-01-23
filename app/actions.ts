@@ -1,6 +1,7 @@
 'use server';
 
 import { parseWithZod } from '@conform-to/zod';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { currencyFormatter } from './utils/currencyFormatter';
 import { standardDateTime } from './utils/dateFormatter';
@@ -46,7 +47,7 @@ export async function onboardUser(prevState: unknown, formData: FormData) {
 }
 
 async function generateInvoiceNumber(): Promise<string> {
-  const prefix = 'INV-';
+  const prefix = 'KUM';
 
   // Atomically update the counter
   const counter = await prisma.counter.upsert({
@@ -56,7 +57,7 @@ async function generateInvoiceNumber(): Promise<string> {
   });
 
   // Use the incremented number to generate the invoice number
-  return `${prefix}${counter.lastNumber.toString().padStart(6, '0')}`;
+  return `${prefix}${counter.lastNumber.toString().padStart(4, '0')}`;
 }
 
 export async function createInvoice(prevState: unknown, formData: FormData) {
@@ -73,8 +74,13 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
   const createdInvoice = await prisma.invoice.create({
     data: {
       ...submission.value,
+      items: {
+        create: submission.value.items,
+      },
       invoiceNumber: invoiceNumber,
       userId: session.user?.id,
+      total: submission.value.items.reduce((sum, item) => sum + item.quantity * item.rate, 0),
+      status: 'PENDING',
     },
   });
 
@@ -84,20 +90,22 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
   };
   const recipients = [
     {
-      email: 'malcolmcollin@gmail.com',
+      email: submission.value.clientEmail,
     },
   ];
 
   emailClient
     .send({
       from: sender,
-      to: recipients, // [{email: submission.value.client.email}]
-      template_uuid: '821b7b5d-910c-465f-b24f-502111741328',
+      to: recipients,
+      template_uuid: 'ae5da7be-96c2-45c8-8612-2aeec3a4531d',
       template_variables: {
         clientName: submission.value.clientName,
         invoiceNumber: createdInvoice.invoiceNumber,
         date: standardDateTime(submission.value.date),
-        totalAmount: currencyFormatter(submission.value.total),
+        totalAmount: currencyFormatter(
+          submission.value.items.reduce((sum, item) => sum + item.quantity * item.rate, 0),
+        ),
         invoiceLink:
           process.env.NODE_ENV !== 'production'
             ? `http://localhost:3000/api/invoice/${createdInvoice.id}`
@@ -126,6 +134,10 @@ export async function editInvoice(prevState: unknown, formData: FormData) {
     },
     data: {
       ...submission.value,
+      items: {
+        deleteMany: {},
+        create: submission.value.items,
+      },
     },
   });
 
@@ -135,20 +147,22 @@ export async function editInvoice(prevState: unknown, formData: FormData) {
   };
   const recipients = [
     {
-      email: 'malcolmcollin@gmail.com',
+      email: submission.value.clientEmail,
     },
   ];
 
   emailClient
     .send({
       from: sender,
-      to: recipients, // [{email: submission.value.client.email}]
-      template_uuid: 'ea465341-9b46-49a4-bee4-575bff70382a',
+      to: recipients,
+      template_uuid: 'e3101592-6027-422f-8d5a-fc7d5d65c8f4',
       template_variables: {
         clientName: submission.value.clientName,
         invoiceNumber: editedInvoice.invoiceNumber,
         date: standardDateTime(submission.value.date),
-        totalAmount: currencyFormatter(submission.value.total),
+        totalAmount: currencyFormatter(
+          submission.value.items.reduce((sum, item) => sum + item.quantity * item.rate, 0),
+        ),
         invoiceLink:
           process.env.NODE_ENV !== 'production'
             ? `http://localhost:3000/api/invoice/${editedInvoice.id}`
@@ -180,6 +194,7 @@ export async function DeleteInvoice(invoiceId: string) {
       id: invoiceId,
     },
   });
+  revalidatePath('/dashboard/invoices');
   return redirect('/dashboard/invoices');
 }
 

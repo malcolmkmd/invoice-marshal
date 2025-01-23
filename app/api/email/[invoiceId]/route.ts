@@ -32,14 +32,13 @@ export async function POST(
       .send({
         from: sender,
         to: recipients,
-        template_uuid: 'b977b054-8302-4464-9465-c7363b3c7af1',
+        template_uuid: '3bd3b4f4-eef1-4d3f-b4db-643fd8f16a06',
         template_variables: {
-          company_info_name: 'Kumwenda Attorneys Inc.',
-          first_name: invoice?.clientName ?? 'Client',
-          company_info_address: 'The Atlanta Lifestyle Estate',
-          company_info_city: 'Centurion',
-          company_info_zip_code: '0157',
-          company_info_country: 'South Africa',
+          clientName: invoice?.clientName ?? 'Client',
+          invoiceNumber: invoice?.invoiceNumber ?? '',
+          dueDate: invoice?.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : '',
+          totalAmount: `R ${invoice?.total?.toFixed(2) ?? '0.00'}`,
+          invoiceLink: `${process.env.NEXT_PUBLIC_APP_URL}/invoices/${invoice?.id}`,
         },
       })
       .then(console.log, console.error);

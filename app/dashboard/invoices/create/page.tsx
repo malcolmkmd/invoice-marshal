@@ -11,8 +11,6 @@ async function getUserData(
       id: userId,
     },
     select: {
-      firstName: true,
-      lastName: true,
       businessName: true,
       address: true,
       email: true,
@@ -24,10 +22,10 @@ async function getUserData(
     throw new Error('User not found');
   }
 
-  const { firstName, lastName, businessName, address, email } = data;
+  const { businessName, address, email } = data;
 
   return {
-    businessName: businessName?.trim() || `${firstName} ${lastName}`,
+    businessName: businessName?.trim() ?? '',
     address: address ?? undefined,
     email,
   };

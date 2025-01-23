@@ -5,20 +5,12 @@ import { Input } from '@/components/ui/input';
 import { SubmissionResult, useForm } from '@conform-to/react';
 import { parseWithZod } from '@conform-to/zod';
 import { Invoice } from '@prisma/client';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, XIcon } from 'lucide-react';
 import { useActionState, useState } from 'react';
-import { z } from 'zod';
 import { Button } from '../../components/ui/button';
 import { Calendar } from '../../components/ui/calendar';
 import { Label } from '../../components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../../components/ui/select';
 import { Textarea } from '../../components/ui/textarea';
 import { useToast } from '../../hooks/use-toast';
 import { currencyFormatter } from '../utils/currencyFormatter';
@@ -37,45 +29,46 @@ export interface iInvoiceFormProps {
 }
 
 export default function InvoiceForm(props: iInvoiceFormProps) {
-  console.log('Invoice', props.invoice);
   const [lastResult, action] = useActionState(props.formAction, undefined);
   const { toast } = useToast();
   const [form, fields] = useForm({
     lastResult,
     onValidate({ formData }) {
-      // Parse the form data using Zod schema
-      console.log('formData', formData);
       const result = parseWithZod(formData, { schema: invoiceSchema });
-      console.log('result', result);
-      // Check for validation errors
-      if (result.status === 'error' && result.error instanceof z.ZodError) {
-        // Display errors in a toast
-        result.error.issues.forEach((issue) => {
+
+      // Enhanced error handling
+      if (result.status === 'error') {
+        const errors = result.error?.issues || [result.error].filter(Boolean);
+        errors.forEach((error) => {
+          if (!error) return; // Add null check
+          console.log('error', error);
           toast({
             title: 'Validation Error',
-            description: `${issue.path.join('.')} - ${issue.message}`,
-            variant: 'destructive', // Show error styling
+            description:
+              typeof error === 'string'
+                ? `Something went wrong: ${error}`
+                : `Something went wrong: ${error.message || 'Validation failed'}`,
+            variant: 'destructive',
           });
         });
-
-        console.error('Validation Errors:', result.error.issues);
       }
 
-      // Return the result to comply with `useForm` expectations
       return result;
     },
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onInput',
   });
 
-  const [selectedDate, setSelectedDate] = useState(props.invoice?.date || new Date());
+  const [selectedDueDate, setSelectedDueDate] = useState<Date>(
+    props.invoice?.dueDate || new Date(),
+  );
 
   // Update the items state to match the new schema
   const [items, setItems] = useState<InvoiceItem[]>([
     {
-      description: props.invoice?.invoiceItemDescription || '',
-      quantity: Number(props.invoice?.invoiceItemQuantity) || 0,
-      rate: Number(props.invoice?.invoiceItemRate) || 0,
+      description: '',
+      quantity: 1,
+      rate: 0,
     },
   ]);
 
@@ -199,20 +192,24 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
         <div className='grid md:grid-cols-2 gap-6 mb-6'>
           <div>
             <div>
-              <Label>Date</Label>
+              <Label>Due Date</Label>
             </div>
 
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant='outline' className='w-[280px] text-left justify-start'>
                   <CalendarIcon className='size-4' />
-                  {selectedDate ? <p>{selectedDate.toDateString()}</p> : <span>Due Date</span>}
+                  {selectedDueDate instanceof Date ? (
+                    selectedDueDate.toDateString()
+                  ) : (
+                    <span>Due Date</span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent>
                 <Calendar
-                  selected={selectedDate}
-                  onSelect={(date) => setSelectedDate(date || new Date())}
+                  selected={selectedDueDate}
+                  onSelect={(date) => setSelectedDueDate(date || new Date())}
                   mode='single'
                   fromDate={new Date()}
                 />
@@ -220,27 +217,9 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
             </Popover>
             <input
               type='hidden'
-              name={fields.date.name}
-              value={selectedDate ? selectedDate.toISOString() : ''}
-            ></input>
-            <p className='text-sm text-red-500'>{fields.date.errors}</p>
-          </div>
-          <div>
-            <Label>Invoice Due</Label>
-            <Select
               name={fields.dueDate.name}
-              key={fields.dueDate.key}
-              defaultValue={props.invoice?.dueDate.toString() ?? fields.dueDate.initialValue}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder='Select due date' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='0'>Due on Reciept</SelectItem>
-                <SelectItem value='15'>In 2 weeks</SelectItem>
-                <SelectItem value='30'>In 1 month</SelectItem>
-              </SelectContent>
-            </Select>
+              value={selectedDueDate ? selectedDueDate.toISOString() : ''}
+            />
             <p className='text-sm text-red-500'>{fields.dueDate.errors}</p>
           </div>
         </div>
@@ -256,7 +235,7 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
             <div key={index} className='flex gap-4 mb-4 items-center'>
               <div className='flex-1'>
                 <Input
-                  name={`items.${index}.description`}
+                  name={`items[${index}].description`}
                   value={item.description}
                   onChange={(e) => {
                     const newItems = [...items];
@@ -265,11 +244,12 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
                   }}
                   type='text'
                   placeholder='Item Name'
+                  required
                 />
               </div>
               <div className='w-32'>
                 <Input
-                  name={`items.${index}.quantity`}
+                  name={`items[${index}].quantity`}
                   value={item.quantity}
                   onChange={(e) => {
                     const newItems = [...items];
@@ -278,11 +258,12 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
                   }}
                   type='number'
                   placeholder='0'
+                  required
                 />
               </div>
               <div className='w-32'>
                 <Input
-                  name={`items.${index}.rate`}
+                  name={`items[${index}].rate`}
                   value={item.rate}
                   onChange={(e) => {
                     const newItems = [...items];
@@ -291,6 +272,7 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
                   }}
                   type='number'
                   placeholder='0'
+                  required
                 />
               </div>
               <div className='w-32'>
@@ -315,20 +297,7 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
                   }}
                   disabled={items.length === 1}
                 >
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='24'
-                    height='24'
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                  >
-                    <path d='M18 6L6 18' />
-                    <path d='M6 6l12 12' />
-                  </svg>
+                  <XIcon className='size-4' />
                 </Button>
               </div>
             </div>
@@ -361,7 +330,8 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
             placeholder='Notes...'
           />
         </div>
-        <div className='flex items-center justify-end mt-6'>
+        <div className='flex items-center justify-end mt-6 gap-6'>
+          <Button variant='outline'>Download PDF</Button>
           <SubmitButton text={props.submitButton} />
         </div>
       </form>
