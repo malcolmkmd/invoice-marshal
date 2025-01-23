@@ -60,6 +60,36 @@ async function generateInvoiceNumber(): Promise<string> {
   return `${prefix}${counter.lastNumber.toString().padStart(4, '0')}`;
 }
 
+export async function sendInvoiceEmail(
+  invoice: any,
+  clientName: string,
+  clientEmail: string,
+  dueDate: Date,
+  total: number,
+) {
+  const sender = {
+    email: 'accounts@kumwenda-inc.co.za',
+    name: 'Accounts @Kumwenda-Inc',
+  };
+  const recipients = [{ email: clientEmail }];
+
+  return emailClient.send({
+    from: sender,
+    to: recipients,
+    template_uuid: 'ae5da7be-96c2-45c8-8612-2aeec3a4531d',
+    template_variables: {
+      clientName,
+      invoiceNumber: invoice.invoiceNumber,
+      date: standardDateTime(dueDate),
+      totalAmount: currencyFormatter(total),
+      invoiceLink:
+        process.env.NODE_ENV !== 'production'
+          ? `http://localhost:3000/api/invoice/${invoice.id}`
+          : `https://invoice-marshal-green.vercel.app/api/invoice/${invoice.id}`,
+    },
+  });
+}
+
 export async function createInvoice(prevState: unknown, formData: FormData) {
   const session = await getSession();
   const invoiceNumber = await generateInvoiceNumber();
@@ -71,50 +101,22 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
     return submission.reply();
   }
 
+  const total = submission.value.items.reduce((sum, item) => sum + item.quantity * item.rate, 0);
+
   const createdInvoice = await prisma.invoice.create({
     data: {
       ...submission.value,
       items: {
         create: submission.value.items,
       },
-      invoiceNumber: invoiceNumber,
+      invoiceNumber,
       userId: session.user?.id,
-      total: submission.value.items.reduce((sum, item) => sum + item.quantity * item.rate, 0),
-      status: 'PENDING',
+      total,
+      status: 'CREATED',
     },
   });
 
-  const sender = {
-    email: 'accounts@kumwenda-inc.co.za',
-    name: 'Accounts @Kumwenda-Inc',
-  };
-  const recipients = [
-    {
-      email: submission.value.clientEmail,
-    },
-  ];
-
-  emailClient
-    .send({
-      from: sender,
-      to: recipients,
-      template_uuid: 'ae5da7be-96c2-45c8-8612-2aeec3a4531d',
-      template_variables: {
-        clientName: submission.value.clientName,
-        invoiceNumber: createdInvoice.invoiceNumber,
-        date: standardDateTime(submission.value.date),
-        totalAmount: currencyFormatter(
-          submission.value.items.reduce((sum, item) => sum + item.quantity * item.rate, 0),
-        ),
-        invoiceLink:
-          process.env.NODE_ENV !== 'production'
-            ? `http://localhost:3000/api/invoice/${createdInvoice.id}`
-            : `https://invoice-marshal-green.vercel.app/api/invoice/${createdInvoice.id}`,
-      },
-    })
-    .then(console.log, console.error);
-
-  return redirect('/dashboard/invoices');
+  return redirect(`/api/invoice/${createdInvoice.id}`);
 }
 
 export async function editInvoice(prevState: unknown, formData: FormData) {
@@ -159,7 +161,7 @@ export async function editInvoice(prevState: unknown, formData: FormData) {
       template_variables: {
         clientName: submission.value.clientName,
         invoiceNumber: editedInvoice.invoiceNumber,
-        date: standardDateTime(submission.value.date),
+        date: standardDateTime(submission.value.dueDate),
         totalAmount: currencyFormatter(
           submission.value.items.reduce((sum, item) => sum + item.quantity * item.rate, 0),
         ),
@@ -210,4 +212,57 @@ export async function MarkAsPaid(invoiceId: string) {
     },
   });
   return redirect('/dashboard/invoices');
+}
+
+export async function sendInvoice(invoiceId: string) {
+  const session = await getSession();
+
+  const invoice = await prisma.invoice.findUnique({
+    where: {
+      id: invoiceId,
+      userId: session.user?.id,
+    },
+  });
+
+  if (!invoice) {
+    throw new Error('Invoice not found');
+  }
+
+  await sendInvoiceEmail(
+    invoice,
+    invoice.clientName,
+    invoice.clientEmail,
+    invoice.dueDate,
+    invoice.total,
+  );
+
+  await prisma.invoice.update({
+    where: {
+      id: invoiceId,
+      userId: session.user?.id,
+    },
+    data: {
+      status: 'SENT',
+    },
+  });
+
+  revalidatePath('/dashboard/invoices');
+  return { success: true };
+}
+
+export async function getInvoices() {
+  const session = await getSession();
+  return prisma.invoiceWithComputedStatus.findMany({
+    where: { userId: session.user?.id },
+  });
+}
+
+export async function getInvoice(id: string) {
+  const session = await getSession();
+  return prisma.invoiceWithComputedStatus.findUnique({
+    where: {
+      id,
+      userId: session.user?.id,
+    },
+  });
 }

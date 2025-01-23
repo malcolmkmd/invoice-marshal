@@ -92,8 +92,8 @@ export async function GET(
 
     // Calculate table Y position dynamically
     const tableY = Math.max(
-      fromToSectionY + 15 + (data.fromAddress?.split(',').length * 5 || 0),
-      fromToSectionY + 15 + (data.clientAddress?.split(',').length * 5 || 0),
+      fromToSectionY + 15 + (data.fromAddress ?? '').split(',').length * 5,
+      fromToSectionY + 15 + (data.clientAddress ?? '').split(',').length * 5,
     );
 
     // Calculate banking details Y position based on table

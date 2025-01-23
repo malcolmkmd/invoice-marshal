@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import WarningGif from '@/public/warning-gif.gif';
 import {
+  BellIcon,
   CheckCircle,
   DownloadCloudIcon,
   MailIcon,
@@ -29,14 +30,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../../components/ui/dialog';
-import { DeleteInvoice } from '../../actions';
+import { DeleteInvoice, sendInvoice } from '../../actions';
 
 interface iInvoiceActionProps {
   invoiceId: string;
   status: string;
+  dueDate: Date;
+  reminderSent: boolean;
 }
 
-export default function InvoiceActions({ invoiceId, status }: iInvoiceActionProps) {
+export default function InvoiceActions({
+  invoiceId,
+  status,
+  dueDate,
+  reminderSent,
+}: iInvoiceActionProps) {
+  const handleSendInvoice = () => {
+    toast.promise(sendInvoice(invoiceId), {
+      loading: 'Emailing invoice...',
+      success: 'Invoice sent successfully',
+      error: 'Failed to send invoice',
+    });
+  };
+
   const handleSendReminder = () => {
     toast.promise(
       fetch(`/api/email/${invoiceId}`, {
@@ -53,6 +69,8 @@ export default function InvoiceActions({ invoiceId, status }: iInvoiceActionProp
     );
   };
 
+  const isPastDue = new Date(dueDate) < new Date();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -67,10 +85,16 @@ export default function InvoiceActions({ invoiceId, status }: iInvoiceActionProp
             Edit
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleSendReminder}>
+        <DropdownMenuItem onClick={handleSendInvoice}>
           <MailIcon className='size-4 mr-2' />
-          Send reminder
+          Email invoice
         </DropdownMenuItem>
+        {isPastDue && !reminderSent && (
+          <DropdownMenuItem onClick={handleSendReminder}>
+            <BellIcon className='size-4 mr-2' />
+            Send reminder
+          </DropdownMenuItem>
+        )}
         {status !== 'PAID' && (
           <DropdownMenuItem asChild>
             <Link href={`/dashboard/invoices/${invoiceId}/paid`}>
@@ -80,7 +104,7 @@ export default function InvoiceActions({ invoiceId, status }: iInvoiceActionProp
           </DropdownMenuItem>
         )}
         <DropdownMenuItem asChild>
-          <Link href=''>
+          <Link href={`/api/invoice/${invoiceId}`}>
             <DownloadCloudIcon className='size-4 mr-2' />
             Download
           </Link>

@@ -33,7 +33,7 @@ async function getInvoiceData(userId: string): Promise<{
     prisma.invoice.findMany({
       where: {
         userId: userId,
-        status: 'PENDING',
+        status: 'SENT',
       },
       select: {
         id: true,

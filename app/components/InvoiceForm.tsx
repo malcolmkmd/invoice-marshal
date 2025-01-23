@@ -331,7 +331,6 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
           />
         </div>
         <div className='flex items-center justify-end mt-6 gap-6'>
-          <Button variant='outline'>Download PDF</Button>
           <SubmitButton text={props.submitButton} />
         </div>
       </form>

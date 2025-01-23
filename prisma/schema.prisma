@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -96,23 +97,45 @@ model Counter {
 }
 
 model Invoice {
-  id        String        @id @default(uuid())
-  total     Int
-  status    InvoiceStatus
-  dueDate   DateTime
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  fromName    String
-  fromEmail   String
-  fromAddress String
+  id            String        @id @default(uuid())
+  total         Int
+  status        InvoiceStatus
+  dueDate       DateTime
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  fromName      String
+  fromEmail     String
+  fromAddress   String
   clientName    String
   clientEmail   String
   clientAddress String
-  invoiceNumber String  @unique
+  invoiceNumber String        @unique
   note          String?
-  items InvoiceItem[]
-  user      User?    @relation(fields: [userId], references: [id])
-  userId    String?
+  items         InvoiceItem[]
+  user          User?         @relation(fields: [userId], references: [id])
+  userId        String?
+
+  @@map("invoices")
+}
+
+view InvoiceWithComputedStatus {
+  id            String   @id
+  total         Int
+  status        String
+  dueDate       DateTime
+  createdAt     DateTime
+  updatedAt     DateTime
+  fromName      String
+  fromEmail     String
+  fromAddress   String
+  clientName    String
+  clientEmail   String
+  clientAddress String
+  invoiceNumber String
+  note          String?
+  userId        String?
+
+  @@map("invoice_with_computed_status")
 }
 
 model InvoiceItem {
@@ -125,6 +148,8 @@ model InvoiceItem {
 }
 
 enum InvoiceStatus {
+  CREATED
+  SENT
   PAID
-  PENDING
+  OVERDUE
 }
