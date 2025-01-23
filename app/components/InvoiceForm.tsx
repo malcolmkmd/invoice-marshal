@@ -23,7 +23,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { useToast } from '../../hooks/use-toast';
 import { currencyFormatter } from '../utils/currencyFormatter';
 import { standardDateTime } from '../utils/dateFormatter';
-import { invoiceSchema } from '../utils/zodSchemas';
+import { InvoiceItem, invoiceSchema } from '../utils/zodSchemas';
 import { InvoiceCard } from './InvoiceCard';
 import { SubmitButton } from './SubmitButton';
 
@@ -69,10 +69,18 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
   });
 
   const [selectedDate, setSelectedDate] = useState(props.invoice?.date || new Date());
-  const [rate, setRate] = useState(props.invoice?.invoiceItemRate || '');
-  const [quantity, setQuantity] = useState(props.invoice?.invoiceItemQuantity || '');
 
-  const calculatedTotal = (Number(quantity) || 0) * (Number(rate) || 0);
+  // Update the items state to match the new schema
+  const [items, setItems] = useState<InvoiceItem[]>([
+    {
+      description: props.invoice?.invoiceItemDescription || '',
+      quantity: Number(props.invoice?.invoiceItemQuantity) || 0,
+      rate: Number(props.invoice?.invoiceItemRate) || 0,
+    },
+  ]);
+
+  // Calculate total from all items
+  const total = items.reduce((sum, item) => sum + Number(item.quantity) * Number(item.rate), 0);
 
   return (
     <InvoiceCard>
@@ -237,66 +245,110 @@ export default function InvoiceForm(props: iInvoiceFormProps) {
           </div>
         </div>
         <div>
-          <div className='grid grid-cols-12 gap-4 mb-2 font-medium'>
-            <p className='col-span-6'>Description</p>
-            <p className='col-span-2'>Quantity</p>
-            <p className='col-span-2'>Price</p>
-            <p className='col-span-2'>Amount</p>
+          <div className='flex gap-4 mb-2 font-medium'>
+            <div className='flex-1'>Description</div>
+            <div className='w-32'>Quantity</div>
+            <div className='w-32'>Price</div>
+            <div className='w-32'>Amount</div>
+            <div className='w-10'></div>
           </div>
-          <div className='grid grid-cols-12 gap-4 mb-4'>
-            <div className='col-span-6'>
-              <Input
-                name={fields.invoiceItemDescription.name}
-                key={fields.invoiceItemDescription.key}
-                defaultValue={
-                  props.invoice?.invoiceItemDescription ??
-                  fields.invoiceItemDescription.initialValue
-                }
-                type='text'
-                placeholder='Item Name'
-              ></Input>
+          {items.map((item, index) => (
+            <div key={index} className='flex gap-4 mb-4 items-center'>
+              <div className='flex-1'>
+                <Input
+                  name={`items.${index}.description`}
+                  value={item.description}
+                  onChange={(e) => {
+                    const newItems = [...items];
+                    newItems[index].description = e.target.value;
+                    setItems(newItems);
+                  }}
+                  type='text'
+                  placeholder='Item Name'
+                />
+              </div>
+              <div className='w-32'>
+                <Input
+                  name={`items.${index}.quantity`}
+                  value={item.quantity}
+                  onChange={(e) => {
+                    const newItems = [...items];
+                    newItems[index].quantity = Number(e.target.value) || 0;
+                    setItems(newItems);
+                  }}
+                  type='number'
+                  placeholder='0'
+                />
+              </div>
+              <div className='w-32'>
+                <Input
+                  name={`items.${index}.rate`}
+                  value={item.rate}
+                  onChange={(e) => {
+                    const newItems = [...items];
+                    newItems[index].rate = Number(e.target.value) || 0;
+                    setItems(newItems);
+                  }}
+                  type='number'
+                  placeholder='0'
+                />
+              </div>
+              <div className='w-32'>
+                <Input
+                  value={currencyFormatter(Number(item.quantity) * Number(item.rate))}
+                  type='text'
+                  placeholder={currencyFormatter(0)}
+                  disabled
+                />
+              </div>
+              <div className='w-10'>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='icon'
+                  className='text-red-500 hover:text-red-700'
+                  onClick={() => {
+                    if (items.length > 1) {
+                      const newItems = items.filter((_, i) => i !== index);
+                      setItems(newItems);
+                    }
+                  }}
+                  disabled={items.length === 1}
+                >
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='24'
+                    height='24'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  >
+                    <path d='M18 6L6 18' />
+                    <path d='M6 6l12 12' />
+                  </svg>
+                </Button>
+              </div>
             </div>
-            <div className='col-span-2'>
-              <Input
-                name={fields.invoiceItemQuantity.name}
-                key={fields.invoiceItemQuantity.key}
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                type='number'
-                placeholder='0'
-              ></Input>
-            </div>
-            <div className='col-span-2'>
-              <Input
-                name={fields.invoiceItemRate.name}
-                key={fields.invoiceItemRate.key}
-                value={rate}
-                onChange={(e) => setRate(e.target.value)}
-                type='number'
-                placeholder='0'
-              ></Input>
-            </div>
-            <div className='col-span-2'>
-              <Input
-                value={currencyFormatter(calculatedTotal)}
-                type='text'
-                placeholder={currencyFormatter(0)}
-                disabled
-              ></Input>
-              <input
-                type='hidden'
-                name={fields.total.name}
-                key={fields.total.key}
-                value={calculatedTotal}
-              />
-            </div>
-          </div>
+          ))}
+          <Button
+            type='button'
+            variant='outline'
+            className='mb-4'
+            onClick={() => {
+              setItems([...items, { description: '', quantity: 0, rate: 0 }]);
+            }}
+          >
+            Add Item
+          </Button>
         </div>
         <div className='flex justify-end'>
           <div className='w-1/3'>
             <div className='flex justify-between py-2 border-t'>
               <span className='font-bold'>Total </span>
-              <span>{currencyFormatter(calculatedTotal)}</span>
+              <span>{currencyFormatter(total)}</span>
             </div>
           </div>
         </div>
