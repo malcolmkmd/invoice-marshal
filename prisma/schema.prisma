@@ -114,6 +114,7 @@ model Invoice {
   items         InvoiceItem[]
   user          User?         @relation(fields: [userId], references: [id])
   userId        String?
+  reminderSent  Boolean       @default(false)
 
   @@map("invoices")
 }

@@ -4,7 +4,7 @@ import { parseWithZod } from '@conform-to/zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { currencyFormatter } from './utils/currencyFormatter';
-import { standardDateTime } from './utils/dateFormatter';
+import { standardDate } from './utils/dateFormatter';
 import prisma from './utils/db';
 import { getSession } from './utils/hooks';
 import { emailClient } from './utils/mailtrap';
@@ -64,7 +64,6 @@ export async function sendInvoiceEmail(
   invoice: any,
   clientName: string,
   clientEmail: string,
-  dueDate: Date,
   total: number,
 ) {
   const sender = {
@@ -80,7 +79,7 @@ export async function sendInvoiceEmail(
     template_variables: {
       clientName,
       invoiceNumber: invoice.invoiceNumber,
-      date: standardDateTime(dueDate),
+      dueDate: standardDate(invoice.dueDate),
       totalAmount: currencyFormatter(total),
       invoiceLink:
         process.env.NODE_ENV !== 'production'
@@ -116,7 +115,7 @@ export async function createInvoice(prevState: unknown, formData: FormData) {
     },
   });
 
-  return redirect(`/api/invoice/${createdInvoice.id}`);
+  return redirect(`/dashboard/invoices`);
 }
 
 export async function editInvoice(prevState: unknown, formData: FormData) {
@@ -161,7 +160,7 @@ export async function editInvoice(prevState: unknown, formData: FormData) {
       template_variables: {
         clientName: submission.value.clientName,
         invoiceNumber: editedInvoice.invoiceNumber,
-        date: standardDateTime(submission.value.dueDate),
+        dueDate: standardDate(submission.value.dueDate),
         totalAmount: currencyFormatter(
           submission.value.items.reduce((sum, item) => sum + item.quantity * item.rate, 0),
         ),
@@ -222,19 +221,23 @@ export async function sendInvoice(invoiceId: string) {
       id: invoiceId,
       userId: session.user?.id,
     },
+    select: {
+      id: true,
+      items: true,
+      clientName: true,
+      clientEmail: true,
+      dueDate: true,
+      invoiceNumber: true,
+    },
   });
 
   if (!invoice) {
     throw new Error('Invoice not found');
   }
 
-  await sendInvoiceEmail(
-    invoice,
-    invoice.clientName,
-    invoice.clientEmail,
-    invoice.dueDate,
-    invoice.total,
-  );
+  const total = invoice.items.reduce((sum, item) => sum + item.quantity * item.rate, 0);
+
+  await sendInvoiceEmail(invoice, invoice.clientName, invoice.clientEmail, total);
 
   await prisma.invoice.update({
     where: {
@@ -246,7 +249,6 @@ export async function sendInvoice(invoiceId: string) {
     },
   });
 
-  revalidatePath('/dashboard/invoices');
   return { success: true };
 }
 

@@ -96,6 +96,7 @@ CREATE TABLE "invoices" (
     "invoiceNumber" TEXT NOT NULL,
     "note" TEXT,
     "userId" TEXT,
+    "reminderSent" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "invoices_pkey" PRIMARY KEY ("id")
 );

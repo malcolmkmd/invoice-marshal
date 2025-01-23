@@ -9,7 +9,7 @@ import {
 import { Invoice } from '@prisma/client';
 import { Badge } from '../../../components/ui/badge';
 import { currencyFormatter } from '../../utils/currencyFormatter';
-import { standardDateTime } from '../../utils/dateFormatter';
+import { standardDate, standardDateTime } from '../../utils/dateFormatter';
 import EmptyState from '../components/EmptyState';
 import InvoiceActions from './InvoiceActions';
 
@@ -32,7 +32,7 @@ export function InvoiceList({ data }: { data: Invoice[] }) {
               <TableHead>Amount</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created on.</TableHead>
-              <TableHead>Updated on.</TableHead>
+              <TableHead>Due on.</TableHead>
               <TableHead className='text-right'>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -54,9 +54,14 @@ export function InvoiceList({ data }: { data: Invoice[] }) {
                   </Badge>
                 </TableCell>
                 <TableCell>{standardDateTime(new Date(invoice.createdAt))}</TableCell>
-                <TableCell>{standardDateTime(new Date(invoice.updatedAt))}</TableCell>
+                <TableCell>{standardDate(new Date(invoice.dueDate))}</TableCell>
                 <TableCell className='text-right'>
-                  <InvoiceActions invoiceId={invoice.id} status={invoice.status} />
+                  <InvoiceActions
+                    invoiceId={invoice.id}
+                    status={invoice.status}
+                    dueDate={invoice.dueDate}
+                    reminderSent={invoice.reminderSent}
+                  />
                 </TableCell>
               </TableRow>
             ))}

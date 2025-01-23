@@ -69,7 +69,7 @@ export default function InvoiceActions({
     );
   };
 
-  const isPastDue = new Date(dueDate) < new Date();
+  const isPastDue = new Date() > new Date(dueDate);
 
   return (
     <DropdownMenu>
@@ -83,6 +83,12 @@ export default function InvoiceActions({
           <Link href={`/dashboard/invoices/${invoiceId}`}>
             <PencilIcon className='size-4 mr-2' />
             Edit
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={`/api/invoice/${invoiceId}`}>
+            <DownloadCloudIcon className='size-4 mr-2' />
+            Download
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleSendInvoice}>
@@ -103,12 +109,6 @@ export default function InvoiceActions({
             </Link>
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem asChild>
-          <Link href={`/api/invoice/${invoiceId}`}>
-            <DownloadCloudIcon className='size-4 mr-2' />
-            Download
-          </Link>
-        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href='#' onClick={(e) => e.preventDefault()}>
             <Dialog>
